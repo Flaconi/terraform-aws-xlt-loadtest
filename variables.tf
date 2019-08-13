@@ -4,6 +4,11 @@ variable "name" {
 	type=string
 }
 
+variable "keyname" {
+	default="maarten"
+	type=string
+}
+
 variable "ami" {
 	default="ami-0f74bf64551726b45"
 	type=string

@@ -77,7 +77,7 @@ module "xceptance_cluster" {
 
   ami                    = var.ami
   instance_type          = "c4.xlarge"
-  key_name               = ""
+  key_name               = var.keyname
   monitoring             = true
   vpc_security_group_ids = [module.ec2_sg.this_security_group_id]
   subnet_id              = module.vpc.private_subnets[0]
@@ -100,7 +100,7 @@ module "grafana" {
 
   ami                         = var.grafana_ami
   instance_type               = "m4.xlarge"
-  key_name                    = ""
+  key_name               = var.keyname
   monitoring                  = true
   vpc_security_group_ids      = [module.ec2_sg.this_security_group_id]
   subnet_id                   = module.vpc.private_subnets[0]
@@ -217,6 +217,18 @@ resource "aws_lb_target_group" "grafana" {
     Terraform = "true"
   }
 }
+resource "aws_lb_target_group" "grafanassh" {
+  name_prefix          = "graf"
+  port                 = "22"
+  protocol             = "TCP"
+  vpc_id               = module.vpc.vpc_id
+  target_type          = "ip"
+  deregistration_delay = "10"
+
+  tags = {
+    Terraform = "true"
+  }
+}
 # LB Listeners for Grafana
 resource "aws_lb_listener" "grafana" {
   load_balancer_arn = aws_lb.this.arn
@@ -227,6 +239,26 @@ resource "aws_lb_listener" "grafana" {
     target_group_arn = "${aws_lb_target_group.grafana.arn}"
     type             = "forward"
   }
+}
+
+# LB Listeners for Grafana
+resource "aws_lb_listener" "grafanassh" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = 22
+  protocol          = "TCP"
+
+  default_action {
+  	target_group_arn = "${aws_lb_target_group.grafanassh.arn}"
+    type             = "forward"
+  }
+}
+
+# Target Group Attachment to instance:ssh
+resource "aws_lb_target_group_attachment" "grafanassh" {
+  count            = 1
+  target_group_arn = aws_lb_target_group.grafanassh.arn
+  target_id        = module.grafana.private_ip[0]
+  port             = 22
 }
 
 # Target Group Attachment to instance:ssh
@@ -254,5 +286,6 @@ data "template_file" "mastercontroller_properties" {
   template = "${file("${path.module}/masterconfig.tpl")}"
   vars = {
     agentcontrollerblock = join("", data.template_file.agentcontrollerblock.*.rendered)
+    password = var.password
   }
 }
