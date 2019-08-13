@@ -63,7 +63,8 @@ module "ec2_sg" {
   number_of_computed_egress_with_self = 1
   computed_egress_with_self = [
     {
-      rule = "all-all"
+      rule        = "all-all"
+      cidr_blocks = "0.0.0.0/0"
   }, ]
 }
 
@@ -100,7 +101,7 @@ module "grafana" {
 
   ami                         = var.grafana_ami
   instance_type               = "m4.xlarge"
-  key_name               = var.keyname
+  key_name                    = var.keyname
   monitoring                  = true
   vpc_security_group_ids      = [module.ec2_sg.this_security_group_id]
   subnet_id                   = module.vpc.private_subnets[0]
@@ -248,7 +249,7 @@ resource "aws_lb_listener" "grafanassh" {
   protocol          = "TCP"
 
   default_action {
-  	target_group_arn = "${aws_lb_target_group.grafanassh.arn}"
+    target_group_arn = "${aws_lb_target_group.grafanassh.arn}"
     type             = "forward"
   }
 }
@@ -286,6 +287,6 @@ data "template_file" "mastercontroller_properties" {
   template = "${file("${path.module}/masterconfig.tpl")}"
   vars = {
     agentcontrollerblock = join("", data.template_file.agentcontrollerblock.*.rendered)
-    password = var.password
+    password             = var.password
   }
 }
