@@ -1,11 +1,11 @@
 variable "start_port_services" {
   description = "The first agent of many will be exposed at port 5000 of the NLB, the second on 5001 etc.etc."
-  default     = "5000"
+  default     = 5000
   type        = number
 }
 variable "start_port_ssh" {
   description = "The first ssh of the agents will be exposed at port 6000 of the NLB, the second on 6001 etc.etc."
-  default     = "6000"
+  default     = 6000
   type        = number
 }
 

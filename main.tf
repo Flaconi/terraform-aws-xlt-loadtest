@@ -159,7 +159,7 @@ resource "aws_lb_target_group" "ssh" {
 resource "aws_lb_listener" "this" {
   count             = var.instance_count
   load_balancer_arn = aws_lb.this.arn
-  port              = count.index + local.start_port_services
+  port              = count.index + var.start_port_services
   protocol          = "TCP"
 
   default_action {
@@ -172,7 +172,7 @@ resource "aws_lb_listener" "this" {
 resource "aws_lb_listener" "ssh" {
   count             = var.instance_count
   load_balancer_arn = aws_lb.this.arn
-  port              = count.index + local.start_port_ssh
+  port              = count.index + var.start_port_ssh
   protocol          = "TCP"
 
   default_action {
