@@ -1,53 +1,60 @@
 variable "start_port_services" {
-  default = "5000"
-  type    = number
+  description = "The first agent of many will be exposed at port 5000 of the NLB, the second on 5001 etc.etc."
+  default     = "5000"
+  type        = number
 }
 variable "start_port_ssh" {
-  default = "6000"
-  type    = number
+  description = "The first ssh of the agents will be exposed at port 6000 of the NLB, the second on 6001 etc.etc."
+  default     = "6000"
+  type        = number
 }
 
 variable "local_network" {
-  default = "10.0.0.0/16"
-  type    = string
+  description = "The vpc network"
+  default     = "10.0.0.0/16"
+  type        = string
 }
 
 variable "name" {
-  default = "thename"
-  type    = string
+  description = "The name used for further interpolastion"
+  type        = string
 }
 
 variable "keyname" {
-  default = "maarten"
-  type    = string
+  description = "The existing keyname of the keypair used for connecting with ssh to the agents"
+  type        = string
 }
 
 variable "instance_type" {
-  default = "c4.2xlarge"
-  type    = string
+  description = "The default instance_type"
+  default     = "c4.2xlarge"
+  type        = string
 }
 
 variable "ami" {
-  default = "ami-0f74bf64551726b45"
-  type    = string
+  description = "The AMI used for the agents"
+  default     = "ami-0f74bf64551726b45"
+  type        = string
 }
 
 variable "allowed_networks" {
-  default = "185.28.184.194/32"
-  type    = string
+  description = "The allowed networks IP/32"
+  type        = string
 }
 
 variable "instance_count" {
-  default = 2
-  type    = string
+  description = "The amount of instances to start"
+  default     = 2
+  type        = string
 }
 
 variable "password" {
-  default = "lalala"
-  type    = string
+  description = "The password to use"
+  type        = string
 }
 
 variable "grafana_ami" {
-  default = "ami-0fc36223101444802"
-  type    = string
+  description = "The grafana ami"
+  default     = "ami-0fc36223101444802"
+  type        = string
 }
