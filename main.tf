@@ -1,6 +1,6 @@
 locals {
   private_subnet = cidrsubnet(var.local_network, 8, 1)
-  public_subnet  = cidrsubnetvar.local_network, 8, 101)
+  public_subnet  = cidrsubnet(ar.local_network, 8, 101)
   graphite_host  = cidrhost(local.private_subnet, 200)
 }
 
@@ -30,7 +30,7 @@ module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "3.0.1"
 
-  name        = "xceptance-sg"
+  name        = "${var.name} - sg"
   description = "Security group for - xceptance - ec2-to-nlb"
   vpc_id      = module.vpc.vpc_id
 
@@ -66,7 +66,7 @@ module "xceptance_cluster" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "~> 2.0"
 
-  name           = "xlt"
+  name           = "xlt-${var.name}"
   instance_count = var.instance_count
 
   ami                    = var.ami
@@ -89,7 +89,7 @@ module "grafana" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "~> 2.0"
 
-  name           = "grafana-xlt"
+  name           = "grafana-${var.name}"
   instance_count = 1
 
   ami                         = var.grafana_ami
@@ -112,7 +112,7 @@ module "grafana" {
 
 # Network Load Balancer
 resource "aws_lb" "this" {
-  name               = "xceptance-service-nlb"
+  name               = "${var.name}-nlb"
   internal           = false
   load_balancer_type = "network"
   subnets            = module.vpc.public_subnets
