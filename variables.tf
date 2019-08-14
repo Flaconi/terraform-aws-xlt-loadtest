@@ -1,3 +1,16 @@
+variable "start_port_services" {
+  default = "5000"
+  type    = number
+}
+variable "start_port_ssh" {
+  default = "6000"
+  type    = number
+}
+
+variable "local_network" {
+  default = "10.0.0.0/16"
+  type    = string
+}
 
 variable "name" {
   default = "thename"
@@ -6,6 +19,11 @@ variable "name" {
 
 variable "keyname" {
   default = "maarten"
+  type    = string
+}
+
+variable "instance_type" {
+  default = "c4.2xlarge"
   type    = string
 }
 
