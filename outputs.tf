@@ -8,7 +8,7 @@ output "ssh_ports" {
 
 
 output "mastercontroller_properties" {
-  value = join("\n", [local.start_here, data.template_file.mastercontroller_properties.rendered, local.end_here, ""])
+  value = data.template_file.mastercontroller_properties.rendered
 }
 
 output "reporting_host" {
