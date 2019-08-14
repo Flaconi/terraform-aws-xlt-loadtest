@@ -1,6 +1,6 @@
 locals {
   private_subnet = cidrsubnet(var.local_network, 8, 1)
-  public_subnet  = cidrsubnet(ar.local_network, 8, 101)
+  public_subnet  = cidrsubnet(var.local_network, 8, 101)
   graphite_host  = cidrhost(local.private_subnet, 200)
 }
 
@@ -42,7 +42,7 @@ module "ec2_sg" {
     },
     {
       rule        = "all-all"
-      cidr_blocks = local.local_network
+      cidr_blocks = var.local_network
   }]
 
 
