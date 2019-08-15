@@ -2,6 +2,14 @@ locals {
   private_subnet = cidrsubnet(var.local_network, 8, 1)
   public_subnet  = cidrsubnet(var.local_network, 8, 101)
   graphite_host  = cidrhost(local.private_subnet, 200)
+
+  tags = merge(
+    var.tags,
+    {
+      "Name"        = "${var.name}"
+      "Environment" = "xlt"
+    },
+  )
 }
 
 
@@ -19,10 +27,7 @@ module "vpc" {
   enable_nat_gateway = true
   enable_vpn_gateway = false
 
-  tags = {
-    Terraform   = "true"
-    Environment = "xceptance"
-  }
+  tags = local.tags
 }
 
 # Security Group for the EC2 Agents
@@ -78,10 +83,7 @@ module "xceptance_cluster" {
 
   user_data = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
 
-  tags = {
-    Terraform   = "true"
-    Environment = "dev"
-  }
+  tags = local.tags
 }
 
 # Grafana
@@ -103,11 +105,7 @@ module "grafana" {
 
   user_data = "{\"auth\": [ {\"name\": \"admin\", \"pass\": \"${var.password}\"}]}"
 
-  tags = {
-    Name        = "grafana"
-    Terraform   = "true"
-    Environment = "dev"
-  }
+  tags = local.tags
 }
 
 # Network Load Balancer
@@ -120,9 +118,7 @@ resource "aws_lb" "this" {
   enable_deletion_protection       = false
   enable_cross_zone_load_balancing = true
 
-  tags = {
-    Terraform = "true"
-  }
+  tags = local.tags
 }
 
 # Target Group to point to XLT Instances ( Agent port )
@@ -135,9 +131,7 @@ resource "aws_lb_target_group" "this" {
   target_type          = "ip"
   deregistration_delay = "10"
 
-  tags = {
-    Terraform = "true"
-  }
+  tags = local.tags
 }
 
 
@@ -151,9 +145,7 @@ resource "aws_lb_target_group" "ssh" {
   target_type          = "ip"
   deregistration_delay = "10"
 
-  tags = {
-    Terraform = "true"
-  }
+  tags = local.tags
 }
 # LB Listeners for Agents
 resource "aws_lb_listener" "this" {
@@ -206,9 +198,7 @@ resource "aws_lb_target_group" "grafana" {
   target_type          = "ip"
   deregistration_delay = "10"
 
-  tags = {
-    Terraform = "true"
-  }
+  tags = local.tags
 }
 
 # LB Listeners for Grafana
