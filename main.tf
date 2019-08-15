@@ -86,7 +86,7 @@ module "grafana" {
   version = "~> 2.0"
 
   name           = "grafana-${var.name}"
-  instance_count = 1
+  instance_count = var.grafana_enabled ? 1 : 0
 
   ami                         = var.grafana_ami
   instance_type               = "m4.xlarge"
@@ -185,6 +185,7 @@ resource "aws_lb_target_group_attachment" "ssh" {
 
 ### GRAFANA
 resource "aws_lb_target_group" "grafana" {
+  count                = var.grafana_enabled ? 1 : 0
   name_prefix          = "graf"
   port                 = "443"
   protocol             = "TCP"
@@ -197,22 +198,24 @@ resource "aws_lb_target_group" "grafana" {
 
 # LB Listeners for Grafana
 resource "aws_lb_listener" "grafana" {
+  count             = var.grafana_enabled ? 1 : 0
   load_balancer_arn = aws_lb.this.arn
   port              = 443
   protocol          = "TCP"
 
   default_action {
-    target_group_arn = "${aws_lb_target_group.grafana.arn}"
+    target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
     type             = "forward"
   }
 }
 # Target Group Attachment to instance:ssh
 resource "aws_lb_target_group_attachment" "grafana" {
-  count            = 1
-  target_group_arn = aws_lb_target_group.grafana.arn
+  count            = var.grafana_enabled ? 1 : 0
+  target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
   target_id        = module.grafana.private_ip[0]
   port             = 443
 }
+
 
 data "template_file" "agentcontrollerblock" {
   count    = var.instance_count
