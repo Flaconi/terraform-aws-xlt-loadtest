@@ -21,7 +21,7 @@ module "terraform-aws-xlt-loadtest" {
 
   # local_network = "10.0.0.0/16"
   # instance_type = "c4.2xlarge"
- 
+
   # allowed_networks = "ip/32"
 
   # grafana_ami = "ami-0fc36223101444802"
