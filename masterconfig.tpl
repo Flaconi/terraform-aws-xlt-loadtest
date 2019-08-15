@@ -1,6 +1,6 @@
 ## START #########################################################################################
 
-com.xceptance.xlt.mastercontroller.testSuitePath = /x/x/x/x
+com.xceptance.xlt.mastercontroller.testSuitePath = /path/to/xlt/loadtest-code-repository
 com.xceptance.xlt.mastercontroller.ui.status.detailedList = false
 com.xceptance.xlt.mastercontroller.ui.status.updateInterval = 5
 com.xceptance.xlt.mastercontroller.password = ${password}
