@@ -39,7 +39,7 @@ variable "ami" {
 
 variable "allowed_networks" {
   description = "The allowed networks IP/32"
-  type        = string
+  type        = list(string)
 }
 
 variable "instance_count" {
@@ -57,4 +57,10 @@ variable "grafana_ami" {
   description = "The grafana ami"
   default     = "ami-0fc36223101444802"
   type        = string
+}
+
+variable "tags" {
+  description = "The tags to add"
+  default     = {}
+  type        = map
 }

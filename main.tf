@@ -39,17 +39,11 @@ module "ec2_sg" {
   description = "Security group for - xceptance - ec2-to-nlb"
   vpc_id      = module.vpc.vpc_id
 
-  number_of_computed_ingress_with_cidr_blocks = 2
-  computed_ingress_with_cidr_blocks = [
-    {
+  ingress_with_cidr_blocks = flatten([
+    for cidr in concat([var.local_network], var.allowed_networks) : {
       rule        = "all-all"
-      cidr_blocks = var.allowed_networks
-    },
-    {
-      rule        = "all-all"
-      cidr_blocks = var.local_network
-  }]
-
+      cidr_blocks = cidr
+  }])
 
   number_of_computed_ingress_with_self = 1
 
