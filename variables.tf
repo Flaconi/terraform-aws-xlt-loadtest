@@ -61,7 +61,7 @@ variable "grafana_enabled" {
 
 
 variable "grafana_ami" {
-  description = "The grafana ami"
+  description = "The grafana ami (required if grafana_enabled is set to true)"
   default     = ""
   type        = string
 }
