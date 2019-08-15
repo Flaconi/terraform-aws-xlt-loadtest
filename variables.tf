@@ -53,9 +53,16 @@ variable "password" {
   type        = string
 }
 
+variable "grafana_enabled" {
+  description = "Do we create a custom Grafana instance"
+  default     = false
+  type        = bool
+}
+
+
 variable "grafana_ami" {
   description = "The grafana ami"
-  default     = "ami-0fc36223101444802"
+  default     = ""
   type        = string
 }
 
