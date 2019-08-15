@@ -45,7 +45,7 @@ module "terraform-aws-xlt-loadtest" {
 | name | The name used for further interpolastion | string | n/a | yes |
 | password | The password to use | string | n/a | yes |
 | ami | The AMI used for the agents | string | `"ami-0f74bf64551726b45"` | no |
-| grafana\_ami | The grafana ami | string | `""` | no |
+| grafana\_ami | The grafana ami (required if grafana_enabled is set to true) | string | `""` | no |
 | grafana\_enabled | Do we create a custom Grafana instance | bool | `"false"` | no |
 | instance\_count | The amount of instances to start | string | `"2"` | no |
 | instance\_type | The default instance_type | string | `"c4.2xlarge"` | no |
