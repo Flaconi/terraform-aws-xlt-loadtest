@@ -1,6 +1,6 @@
 ## START #########################################################################################
 
-com.xceptance.xlt.mastercontroller.testSuitePath = /Users/ext.maarten.vanderho/dev/xlt-4.13.0/flaconi
+com.xceptance.xlt.mastercontroller.testSuitePath = /x/x/x/x
 com.xceptance.xlt.mastercontroller.ui.status.detailedList = false
 com.xceptance.xlt.mastercontroller.ui.status.updateInterval = 5
 com.xceptance.xlt.mastercontroller.password = ${password}
