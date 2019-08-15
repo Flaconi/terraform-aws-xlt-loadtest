@@ -22,6 +22,7 @@ variable "name" {
 
 variable "keyname" {
   description = "The existing keyname of the keypair used for connecting with ssh to the agents"
+  default     = ""
   type        = string
 }
 
