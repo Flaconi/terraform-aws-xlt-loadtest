@@ -12,7 +12,7 @@ output "mastercontroller_properties" {
 }
 
 output "reporting_host" {
-  value = "xlt.reporting.graphite.host = ${local.graphite_host}"
+	value = var.grafana_enabled ? "xlt.reporting.graphite.host = ${local.graphite_host}" : "# Not enabled"
 }
 
 output "vpc_nat_eips" {
