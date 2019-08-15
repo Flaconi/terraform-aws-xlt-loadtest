@@ -34,7 +34,7 @@ module "terraform-aws-xlt-loadtest" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| allowed\_networks | The allowed networks IP/32 | string | n/a | yes |
+| allowed\_networks | The allowed networks IP/32 | list(string) | n/a | yes |
 | keyname | The existing keyname of the keypair used for connecting with ssh to the agents | string | n/a | yes |
 | name | The name used for further interpolastion | string | n/a | yes |
 | password | The password to use | string | n/a | yes |
@@ -45,6 +45,7 @@ module "terraform-aws-xlt-loadtest" {
 | local\_network | The vpc network | string | `"10.0.0.0/16"` | no |
 | start\_port\_services | The first agent of many will be exposed at port 5000 of the NLB, the second on 5001 etc.etc. | number | `"5000"` | no |
 | start\_port\_ssh | The first ssh of the agents will be exposed at port 6000 of the NLB, the second on 6001 etc.etc. | number | `"6000"` | no |
+| tags | The tags to add | map | `{}` | no |
 
 ## Outputs
 
