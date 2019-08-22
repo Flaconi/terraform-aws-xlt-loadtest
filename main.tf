@@ -55,9 +55,16 @@ module "ec2_sg" {
   number_of_computed_egress_with_self = 1
   computed_egress_with_self = [
     {
+      rule = "all-all"
+    },
+  ]
+  number_of_computed_egress_with_cidr_blocks = 1
+  computed_egress_with_cidr_blocks = [
+    {
       rule        = "all-all"
       cidr_blocks = "0.0.0.0/0"
-  }, ]
+    },
+  ]
 }
 
 # XLT
