@@ -1,11 +1,6 @@
 output "lb_host" {
-  value = aws_lb.this.dns_name
+  value = aws_lb.this.*.dns_name
 }
-
-output "ssh_ports" {
-  value = aws_lb_listener.ssh.*.port
-}
-
 
 output "mastercontroller_properties" {
   value = data.template_file.mastercontroller_properties.rendered

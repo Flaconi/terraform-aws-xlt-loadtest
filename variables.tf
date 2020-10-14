@@ -16,7 +16,7 @@ variable "local_network" {
 }
 
 variable "name" {
-  description = "The name used for further interpolastion"
+  description = "The name used for further interpolation"
   type        = string
 }
 
@@ -28,13 +28,13 @@ variable "keyname" {
 
 variable "instance_type" {
   description = "The default instance_type"
-  default     = "c4.2xlarge"
+  default     = "c5.2xlarge"
   type        = string
 }
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-0f74bf64551726b45"
+  default     = "ami-03a9f499791f15abd"
   type        = string
 }
 
@@ -46,6 +46,12 @@ variable "allowed_networks" {
 variable "instance_count" {
   description = "The amount of instances to start"
   default     = 2
+  type        = string
+}
+
+variable "instance_count_per_lb" {
+  description = "The amount of instances per lb"
+  default     = 50
   type        = string
 }
 
@@ -63,12 +69,12 @@ variable "grafana_enabled" {
 
 variable "grafana_ami" {
   description = "The grafana ami (required if grafana_enabled is set to true)"
-  default     = ""
+  default     = "ami-0fc36223101444802"
   type        = string
 }
 
 variable "tags" {
   description = "The tags to add"
   default     = {}
-  type        = map
+  type        = map(string)
 }
