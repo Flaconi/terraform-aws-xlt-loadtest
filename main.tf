@@ -1,8 +1,9 @@
 locals {
-  private_subnet = cidrsubnet(var.local_network, 8, 1)
-  public_subnet  = cidrsubnet(var.local_network, 8, 101)
-  graphite_host  = cidrhost(local.private_subnet, 200)
-  nlb_count      = ceil((var.instance_count + (var.grafana_enabled ? 1 : 0)) /var.instance_count_per_lb)
+  private_subnet        = cidrsubnet(var.local_network, 8, 1)
+  public_subnet         = cidrsubnet(var.local_network, 8, 101)
+  graphite_host         = cidrhost(local.private_subnet, 200)
+  nlb_count             = ceil((var.instance_count + (var.grafana_enabled ? 1 : 0)) / var.instance_count_per_lb)
+  instance_count_per_lb = min(49, var.instance_count_per_lb)
 
   tags = merge(
     var.tags,
@@ -96,7 +97,7 @@ module "grafana" {
   instance_count = var.grafana_enabled ? 1 : 0
 
   ami                         = var.grafana_ami
-  instance_type               = "m5.xlarge"
+  instance_type               = "m4.xlarge"
   key_name                    = var.keyname
   monitoring                  = true
   vpc_security_group_ids      = [module.ec2_sg.this_security_group_id]
@@ -139,7 +140,7 @@ resource "aws_lb_target_group" "this" {
 # LB Listeners for Agents
 resource "aws_lb_listener" "this" {
   count             = var.instance_count
-  load_balancer_arn = aws_lb.this[ceil((count.index + 1) / var.instance_count_per_lb) - 1].arn
+  load_balancer_arn = aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].arn
   port              = count.index + var.start_port_services
   protocol          = "TCP"
 
@@ -200,7 +201,7 @@ com.xceptance.xlt.mastercontroller.agentcontrollers.ac${format("%03d", count.ind
 EOT
 
   vars = {
-    url = "https://${aws_lb.this[ceil((count.index + 1) / var.instance_count_per_lb) - 1].dns_name}:${aws_lb_listener.this[count.index].port}"
+    url = "https://${aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].dns_name}:${aws_lb_listener.this[count.index].port}"
   }
 }
 
