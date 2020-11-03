@@ -34,7 +34,7 @@ variable "instance_type" {
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-03a9f499791f15abd"
+  default     = "ami-088082d6bae5681fc"
   type        = string
 }
 
