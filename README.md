@@ -41,18 +41,19 @@ module "terraform-aws-xlt-loadtest" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | allowed\_networks | The allowed networks IP/32 | list(string) | n/a | yes |
-| name | The name used for further interpolastion | string | n/a | yes |
+| name | The name used for further interpolation | string | n/a | yes |
 | password | The password to use | string | n/a | yes |
-| ami | The AMI used for the agents | string | `"ami-0f74bf64551726b45"` | no |
-| grafana\_ami | The grafana ami (required if grafana_enabled is set to true) | string | `""` | no |
+| ami | The AMI used for the agents | string | `"ami-088082d6bae5681fc"` | no |
+| grafana\_ami | The grafana ami (required if grafana_enabled is set to true) | string | `"ami-0fc36223101444802"` | no |
 | grafana\_enabled | Do we create a custom Grafana instance | bool | `"false"` | no |
 | instance\_count | The amount of instances to start | string | `"2"` | no |
-| instance\_type | The default instance_type | string | `"c4.2xlarge"` | no |
+| instance\_count\_per\_lb | The amount of instances per lb | string | `"50"` | no |
+| instance\_type | The default instance_type | string | `"c5.2xlarge"` | no |
 | keyname | The existing keyname of the keypair used for connecting with ssh to the agents | string | `""` | no |
 | local\_network | The vpc network | string | `"10.0.0.0/16"` | no |
 | start\_port\_services | The first agent of many will be exposed at port 5000 of the NLB, the second on 5001 etc.etc. | number | `"5000"` | no |
 | start\_port\_ssh | The first ssh of the agents will be exposed at port 6000 of the NLB, the second on 6001 etc.etc. | number | `"6000"` | no |
-| tags | The tags to add | map | `{}` | no |
+| tags | The tags to add | map(string) | `{}` | no |
 
 ## Outputs
 
@@ -61,7 +62,6 @@ module "terraform-aws-xlt-loadtest" {
 | lb\_host |  |
 | mastercontroller\_properties |  |
 | reporting\_host |  |
-| ssh\_ports |  |
 | vpc\_nat\_eips |  |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
