@@ -1,23 +1,24 @@
 locals {
-  private_subnet = cidrsubnet(var.local_network, 8, 1)
-  public_subnet  = cidrsubnet(var.local_network, 8, 101)
-  graphite_host  = cidrhost(local.private_subnet, 200)
+  private_subnet        = cidrsubnet(var.local_network, 8, 1)
+  public_subnet         = cidrsubnet(var.local_network, 8, 101)
+  graphite_host         = cidrhost(local.private_subnet, 200)
+  nlb_count             = ceil((var.instance_count + (var.grafana_enabled ? 1 : 0)) / var.instance_count_per_lb)
+  instance_count_per_lb = min(49, var.instance_count_per_lb)
 
   tags = merge(
     var.tags,
     {
-      "Name"        = "${var.name}"
+      "Name"        = var.name
       "Environment" = "xlt"
     },
   )
 }
 
-
 # VPC
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "xlt - ${var.name}"
+  name = "xlt-${var.name}"
   cidr = var.local_network
 
   azs             = ["eu-central-1a"]
@@ -35,7 +36,7 @@ module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "3.0.1"
 
-  name        = "${var.name} - sg"
+  name        = "${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
   vpc_id      = module.vpc.vpc_id
 
@@ -111,7 +112,8 @@ module "grafana" {
 
 # Network Load Balancer
 resource "aws_lb" "this" {
-  name               = "${var.name}-nlb"
+  count              = local.nlb_count
+  name               = "${var.name}-nlb-${count.index}"
   internal           = false
   load_balancer_type = "network"
   subnets            = module.vpc.public_subnets
@@ -135,41 +137,15 @@ resource "aws_lb_target_group" "this" {
   tags = local.tags
 }
 
-
-# Target Group to point to XLT Instances ( SSH Port)
-resource "aws_lb_target_group" "ssh" {
-  count                = var.instance_count
-  name_prefix          = "xltssh"
-  port                 = "22"
-  protocol             = "TCP"
-  vpc_id               = module.vpc.vpc_id
-  target_type          = "ip"
-  deregistration_delay = "10"
-
-  tags = local.tags
-}
 # LB Listeners for Agents
 resource "aws_lb_listener" "this" {
   count             = var.instance_count
-  load_balancer_arn = aws_lb.this.arn
+  load_balancer_arn = aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].arn
   port              = count.index + var.start_port_services
   protocol          = "TCP"
 
   default_action {
-    target_group_arn = "${aws_lb_target_group.this[count.index].arn}"
-    type             = "forward"
-  }
-}
-
-# LB Listeners for SSH
-resource "aws_lb_listener" "ssh" {
-  count             = var.instance_count
-  load_balancer_arn = aws_lb.this.arn
-  port              = count.index + var.start_port_ssh
-  protocol          = "TCP"
-
-  default_action {
-    target_group_arn = "${aws_lb_target_group.ssh[count.index].arn}"
+    target_group_arn = aws_lb_target_group.this[count.index].arn
     type             = "forward"
   }
 }
@@ -180,14 +156,6 @@ resource "aws_lb_target_group_attachment" "agents" {
   target_group_arn = aws_lb_target_group.this[count.index].arn
   target_id        = module.xceptance_cluster.private_ip[count.index]
   port             = 8500
-}
-
-# Target Group Attachment to instance:ssh
-resource "aws_lb_target_group_attachment" "ssh" {
-  count            = var.instance_count
-  target_group_arn = aws_lb_target_group.ssh[count.index].arn
-  target_id        = module.xceptance_cluster.private_ip[count.index]
-  port             = 22
 }
 
 ### GRAFANA
@@ -206,7 +174,7 @@ resource "aws_lb_target_group" "grafana" {
 # LB Listeners for Grafana
 resource "aws_lb_listener" "grafana" {
   count             = var.grafana_enabled ? 1 : 0
-  load_balancer_arn = aws_lb.this.arn
+  load_balancer_arn = aws_lb.this[local.nlb_count - 1].arn
   port              = 443
   protocol          = "TCP"
 
@@ -215,7 +183,7 @@ resource "aws_lb_listener" "grafana" {
     type             = "forward"
   }
 }
-# Target Group Attachment to instance:ssh
+# Target Group Attachment to instance:grafanaport
 resource "aws_lb_target_group_attachment" "grafana" {
   count            = var.grafana_enabled ? 1 : 0
   target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
@@ -233,12 +201,12 @@ com.xceptance.xlt.mastercontroller.agentcontrollers.ac${format("%03d", count.ind
 EOT
 
   vars = {
-    url = "https://${aws_lb.this.dns_name}:${aws_lb_listener.this[count.index].port}"
+    url = "https://${aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].dns_name}:${aws_lb_listener.this[count.index].port}"
   }
 }
 
 data "template_file" "mastercontroller_properties" {
-  template = "${file("${path.module}/masterconfig.tpl")}"
+  template = file("${path.module}/masterconfig.tpl")
   vars = {
     agentcontrollerblock = join("", data.template_file.agentcontrollerblock.*.rendered)
     password             = var.password
