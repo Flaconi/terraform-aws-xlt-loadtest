@@ -17,6 +17,7 @@ locals {
 # VPC
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  version = "3.14.4"
 
   name = "xlt-${var.name}"
   cidr = var.local_network
@@ -34,7 +35,7 @@ module "vpc" {
 # Security Group for the EC2 Agents
 module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "3.0.1"
+  version = "4.13.0"
 
   name        = "${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
@@ -80,7 +81,7 @@ module "xceptance_cluster" {
   instance_type          = var.instance_type
   key_name               = var.keyname
   monitoring             = true
-  vpc_security_group_ids = [module.ec2_sg.this_security_group_id]
+  vpc_security_group_ids = [module.ec2_sg.security_group_id]
   subnet_id              = module.vpc.private_subnets[0]
 
   user_data = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
@@ -100,7 +101,7 @@ module "grafana" {
   instance_type               = "m4.xlarge"
   key_name                    = var.keyname
   monitoring                  = true
-  vpc_security_group_ids      = [module.ec2_sg.this_security_group_id]
+  vpc_security_group_ids      = [module.ec2_sg.security_group_id]
   subnet_id                   = module.vpc.private_subnets[0]
   private_ip                  = local.graphite_host
   associate_public_ip_address = false
