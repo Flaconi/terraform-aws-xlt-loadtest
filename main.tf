@@ -16,7 +16,8 @@ locals {
 
 # VPC
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "3.14.4"
 
   name = "xlt-${var.name}"
   cidr = var.local_network
@@ -34,7 +35,7 @@ module "vpc" {
 # Security Group for the EC2 Agents
 module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "3.0.1"
+  version = "4.13.0"
 
   name        = "${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
@@ -71,16 +72,16 @@ module "ec2_sg" {
 # XLT
 module "xceptance_cluster" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "~> 2.0"
+  version = "4.1.4"
 
-  name           = "xlt-${var.name}"
-  instance_count = var.instance_count
+  count = var.instance_count
+  name  = "xlt-${var.name}-${count.index}"
 
   ami                    = var.ami
   instance_type          = var.instance_type
   key_name               = var.keyname
   monitoring             = true
-  vpc_security_group_ids = [module.ec2_sg.this_security_group_id]
+  vpc_security_group_ids = [module.ec2_sg.security_group_id]
   subnet_id              = module.vpc.private_subnets[0]
 
   user_data = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
@@ -91,16 +92,16 @@ module "xceptance_cluster" {
 # Grafana
 module "grafana" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "~> 2.0"
+  version = "4.1.4"
 
-  name           = "grafana-${var.name}"
-  instance_count = var.grafana_enabled ? 1 : 0
+  name   = "grafana-${var.name}"
+  create = var.grafana_enabled ? true : false
 
   ami                         = var.grafana_ami
   instance_type               = "m4.xlarge"
   key_name                    = var.keyname
   monitoring                  = true
-  vpc_security_group_ids      = [module.ec2_sg.this_security_group_id]
+  vpc_security_group_ids      = [module.ec2_sg.security_group_id]
   subnet_id                   = module.vpc.private_subnets[0]
   private_ip                  = local.graphite_host
   associate_public_ip_address = false
@@ -154,7 +155,7 @@ resource "aws_lb_listener" "this" {
 resource "aws_lb_target_group_attachment" "agents" {
   count            = var.instance_count
   target_group_arn = aws_lb_target_group.this[count.index].arn
-  target_id        = module.xceptance_cluster.private_ip[count.index]
+  target_id        = module.xceptance_cluster[count.index].private_ip
   port             = 8500
 }
 
@@ -187,7 +188,7 @@ resource "aws_lb_listener" "grafana" {
 resource "aws_lb_target_group_attachment" "grafana" {
   count            = var.grafana_enabled ? 1 : 0
   target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
-  target_id        = module.grafana.private_ip[0]
+  target_id        = module.grafana.private_ip
   port             = 443
 }
 
