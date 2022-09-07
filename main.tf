@@ -16,7 +16,7 @@ locals {
 
 # VPC
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "3.14.4"
 
   name = "xlt-${var.name}"
@@ -75,8 +75,7 @@ module "xceptance_cluster" {
   version = "4.1.4"
 
   count = var.instance_count
-  //for_each = toset(var.instance_count > 0 ? [ for i in range(1, var.instance_count): "-${i}" ] : [])
-  name     = "xlt-${var.name}-${count.index}"
+  name  = "xlt-${var.name}-${count.index}"
 
   ami                    = var.ami
   instance_type          = var.instance_type
