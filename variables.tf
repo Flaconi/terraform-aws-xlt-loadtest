@@ -34,7 +34,7 @@ variable "instance_type" {
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-088082d6bae5681fc"
+  default     = "ami-02d63d6d135e3f0f0" # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20220901
   type        = string
 }
 

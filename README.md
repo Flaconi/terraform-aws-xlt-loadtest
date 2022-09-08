@@ -29,8 +29,6 @@ module "terraform-aws-xlt-loadtest" {
   # instance_type = "c4.2xlarge"
 
   # allowed_networks = "ip/32"
-
-  # grafana_ami = "ami-0fc36223101444802"
 }
 
 ```
@@ -43,7 +41,7 @@ module "terraform-aws-xlt-loadtest" {
 | allowed\_networks | The allowed networks IP/32 | list(string) | n/a | yes |
 | name | The name used for further interpolation | string | n/a | yes |
 | password | The password to use | string | n/a | yes |
-| ami | The AMI used for the agents | string | `"ami-088082d6bae5681fc"` | no |
+| ami | The AMI used for the agents | string | `"ami-02d63d6d135e3f0f0"` | no |
 | grafana\_ami | The grafana ami (required if grafana_enabled is set to true) | string | `"ami-0fc36223101444802"` | no |
 | grafana\_enabled | Do we create a custom Grafana instance | bool | `"false"` | no |
 | instance\_count | The amount of instances to start | string | `"2"` | no |
