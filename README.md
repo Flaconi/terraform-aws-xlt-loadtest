@@ -78,7 +78,7 @@ module "terraform-aws-xlt-loadtest" {
 | <a name="input_allowed_networks"></a> [allowed\_networks](#input\_allowed\_networks) | The allowed networks IP/32 | `list(string)` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name used for further interpolation | `string` | n/a | yes |
 | <a name="input_password"></a> [password](#input\_password) | The password to use | `string` | n/a | yes |
-| <a name="input_ami"></a> [ami](#input\_ami) | The AMI used for the agents | `string` | `"ami-02d63d6d135e3f0f0"` | no |
+| <a name="input_ami"></a> [ami](#input\_ami) | The AMI used for the agents | `string` | `"ami-0b701f8f19be222c6"` | no |
 | <a name="input_grafana_ami"></a> [grafana\_ami](#input\_grafana\_ami) | The grafana ami (required if grafana\_enabled is set to true) | `string` | `"ami-0fc36223101444802"` | no |
 | <a name="input_grafana_enabled"></a> [grafana\_enabled](#input\_grafana\_enabled) | Do we create a custom Grafana instance | `bool` | `false` | no |
 | <a name="input_instance_count"></a> [instance\_count](#input\_instance\_count) | The amount of instances to start | `string` | `2` | no |

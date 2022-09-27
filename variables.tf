@@ -34,7 +34,7 @@ variable "instance_type" {
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-02d63d6d135e3f0f0" # ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20220901
+  default     = "ami-0b701f8f19be222c6" # list of recent XLT AMIs https://github.com/Xceptance/XLT/releases
   type        = string
 }
 
