@@ -46,7 +46,6 @@ module "terraform-aws-xlt-loadtest" {
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5 |
-| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -68,8 +67,6 @@ module "terraform-aws-xlt-loadtest" {
 | [aws_lb_target_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group_attachment.agents](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group_attachment) | resource |
 | [aws_lb_target_group_attachment.grafana](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group_attachment) | resource |
-| [template_file.agentcontrollerblock](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
-| [template_file.mastercontroller_properties](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
@@ -95,7 +92,7 @@ module "terraform-aws-xlt-loadtest" {
 | Name | Description |
 |------|-------------|
 | <a name="output_lb_host"></a> [lb\_host](#output\_lb\_host) | n/a |
-| <a name="output_mastercontroller_properties"></a> [mastercontroller\_properties](#output\_mastercontroller\_properties) | n/a |
+| <a name="output_master_controller_properties"></a> [master\_controller\_properties](#output\_master\_controller\_properties) | n/a |
 | <a name="output_reporting_host"></a> [reporting\_host](#output\_reporting\_host) | n/a |
 | <a name="output_vpc_nat_eips"></a> [vpc\_nat\_eips](#output\_vpc\_nat\_eips) | n/a |
 
@@ -106,4 +103,4 @@ module "terraform-aws-xlt-loadtest" {
 
 [MIT](LICENSE)
 
-Copyright (c) 2019 [Flaconi GmbH](https://github.com/Flaconi)
+Copyright (c) 2019-2023 [Flaconi GmbH](https://github.com/Flaconi)

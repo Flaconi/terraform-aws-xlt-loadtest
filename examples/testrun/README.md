@@ -28,7 +28,7 @@ No inputs.
 | Name | Description |
 |------|-------------|
 | <a name="output_lb_host"></a> [lb\_host](#output\_lb\_host) | n/a |
-| <a name="output_mastercontroller_properties"></a> [mastercontroller\_properties](#output\_mastercontroller\_properties) | n/a |
+| <a name="output_master_controller_properties"></a> [master\_controller\_properties](#output\_master\_controller\_properties) | n/a |
 | <a name="output_reporting_host"></a> [reporting\_host](#output\_reporting\_host) | n/a |
 | <a name="output_vpc_nat_eips"></a> [vpc\_nat\_eips](#output\_vpc\_nat\_eips) | n/a |
 
@@ -39,4 +39,4 @@ No inputs.
 
 [MIT](LICENSE)
 
-Copyright (c) 2019 [Flaconi GmbH](https://github.com/Flaconi)
+Copyright (c) 2019-2023 [Flaconi GmbH](https://github.com/Flaconi)
