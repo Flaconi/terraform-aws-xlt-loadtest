@@ -1,19 +1,3 @@
-locals {
-  private_subnet        = cidrsubnet(var.local_network, 8, 1)
-  public_subnet         = cidrsubnet(var.local_network, 8, 101)
-  graphite_host         = cidrhost(local.private_subnet, 200)
-  nlb_count             = ceil((var.instance_count + (var.grafana_enabled ? 1 : 0)) / var.instance_count_per_lb)
-  instance_count_per_lb = min(49, var.instance_count_per_lb)
-
-  tags = merge(
-    var.tags,
-    {
-      "Name"        = var.name
-      "Environment" = "xlt"
-    },
-  )
-}
-
 # VPC
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -190,26 +174,4 @@ resource "aws_lb_target_group_attachment" "grafana" {
   target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
   target_id        = module.grafana.private_ip
   port             = 443
-}
-
-
-data "template_file" "agentcontrollerblock" {
-  count    = var.instance_count
-  template = <<-EOT
-com.xceptance.xlt.mastercontroller.agentcontrollers.ac${format("%03d", count.index)}.url = $${url}
-com.xceptance.xlt.mastercontroller.agentcontrollers.ac${format("%03d", count.index)}.weight = 1
-com.xceptance.xlt.mastercontroller.agentcontrollers.ac${format("%03d", count.index)}.agents = 2
-EOT
-
-  vars = {
-    url = "https://${aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].dns_name}:${aws_lb_listener.this[count.index].port}"
-  }
-}
-
-data "template_file" "mastercontroller_properties" {
-  template = file("${path.module}/masterconfig.tftpl")
-  vars = {
-    agentcontrollerblock = join("", data.template_file.agentcontrollerblock.*.rendered)
-    password             = var.password
-  }
 }

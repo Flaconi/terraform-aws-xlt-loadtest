@@ -2,8 +2,11 @@ output "lb_host" {
   value = aws_lb.this.*.dns_name
 }
 
-output "mastercontroller_properties" {
-  value = data.template_file.mastercontroller_properties.rendered
+output "master_controller_properties" {
+  value = templatefile("${path.module}/masterconfig.tftpl", {
+    agent_controller_block = join("", local.agent_controller_blocks)
+    password               = var.password
+  })
 }
 
 output "reporting_host" {

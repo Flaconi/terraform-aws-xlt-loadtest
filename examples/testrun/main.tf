@@ -14,6 +14,6 @@ module "cluster" {
 }
 
 output "lb_host" { value = module.cluster.lb_host }
-output "mastercontroller_properties" { value = module.cluster.mastercontroller_properties }
+output "master_controller_properties" { value = module.cluster.master_controller_properties }
 output "reporting_host" { value = module.cluster.reporting_host }
 output "vpc_nat_eips" { value = module.cluster.vpc_nat_eips }
