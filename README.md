@@ -39,23 +39,23 @@ module "terraform-aws-xlt-loadtest" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5 |
 | <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_ec2_sg"></a> [ec2\_sg](#module\_ec2\_sg) | terraform-aws-modules/security-group/aws | 4.13.0 |
-| <a name="module_grafana"></a> [grafana](#module\_grafana) | terraform-aws-modules/ec2-instance/aws | 4.1.4 |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 3.14.4 |
-| <a name="module_xceptance_cluster"></a> [xceptance\_cluster](#module\_xceptance\_cluster) | terraform-aws-modules/ec2-instance/aws | 4.1.4 |
+| <a name="module_ec2_sg"></a> [ec2\_sg](#module\_ec2\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
+| <a name="module_grafana"></a> [grafana](#module\_grafana) | terraform-aws-modules/ec2-instance/aws | 5.1.0 |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 5.0.0 |
+| <a name="module_xceptance_cluster"></a> [xceptance\_cluster](#module\_xceptance\_cluster) | terraform-aws-modules/ec2-instance/aws | 5.1.0 |
 
 ## Resources
 

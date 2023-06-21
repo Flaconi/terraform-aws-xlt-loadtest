@@ -12,8 +12,8 @@ TF_MODULES  = $(sort $(dir $(wildcard $(CURRENT_DIR)modules/*/)))
 # Container versions
 # -------------------------------------------------------------------------------------------------
 TF_VERSION     = 1.0.11
-TFDOCS_VERSION = 0.16.0-0.31
-FL_VERSION     = 0.4
+TFDOCS_VERSION = 0.16.0-0.34
+FL_VERSION     = latest-0.8
 
 # -------------------------------------------------------------------------------------------------
 # Enable linter (file-lint, terraform fmt)

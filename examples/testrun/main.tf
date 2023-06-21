@@ -4,9 +4,9 @@ provider "aws" {
 
 module "cluster" {
   source                = "./../.."
-  name                  = "example"
-  instance_count        = 5
-  instance_count_per_lb = 40
+  name                  = "xlt-example"
+  instance_count        = 1
+  instance_count_per_lb = 2
   password              = "xlt1234AbcD"
   allowed_networks      = ["0.0.0.0/0"]
   grafana_enabled       = true
