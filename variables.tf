@@ -34,7 +34,7 @@ variable "instance_type" {
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-0b701f8f19be222c6" # list of recent XLT AMIs https://github.com/Xceptance/XLT/releases
+  default     = "ami-036cc6f041deb429b" # list of recent XLT AMIs https://github.com/Xceptance/XLT/releases
   type        = string
 }
 
