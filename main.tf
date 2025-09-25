@@ -1,7 +1,7 @@
 # VPC
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+  version = "6.2.0"
 
   name = "xlt-${var.name}"
   cidr = var.local_network
@@ -19,7 +19,7 @@ module "vpc" {
 # Security Group for the EC2 Agents
 module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.1.0"
+  version = "5.3.0"
 
   name        = "${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
@@ -56,7 +56,7 @@ module "ec2_sg" {
 # XLT
 module "xceptance_cluster" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "5.1.0"
+  version = "6.1.1"
 
   count = var.instance_count
   name  = "xlt-${var.name}-${count.index}"
@@ -76,7 +76,7 @@ module "xceptance_cluster" {
 # Grafana
 module "grafana" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "5.1.0"
+  version = "6.1.1"
 
   name   = "grafana-${var.name}"
   create = var.grafana_enabled ? true : false

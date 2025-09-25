@@ -3,11 +3,6 @@ variable "start_port_services" {
   default     = 5000
   type        = number
 }
-variable "start_port_ssh" {
-  description = "The first ssh of the agents will be exposed at port 6000 of the NLB, the second on 6001 etc.etc."
-  default     = 6000
-  type        = number
-}
 
 variable "local_network" {
   description = "The vpc network"
@@ -34,7 +29,7 @@ variable "instance_type" {
 
 variable "ami" {
   description = "The AMI used for the agents"
-  default     = "ami-036cc6f041deb429b" # list of recent XLT AMIs https://github.com/Xceptance/XLT/releases
+  default     = "ami-01cd2bce70ccf6df4" # list of recent XLT AMIs https://github.com/Xceptance/XLT/releases
   type        = string
 }
 
