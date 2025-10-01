@@ -7,7 +7,7 @@ endif
 CURRENT_DIR     = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TF_EXAMPLES     = $(sort $(dir $(wildcard $(CURRENT_DIR)examples/*/)))
 TF_MODULES      = $(sort $(dir $(wildcard $(CURRENT_DIR)modules/*/)))
-FL_IGNORE_PATHS = .git/,.github/,.terraform/,.idea/
+FL_IGNORE_PATHS = .git/,.github/,.terraform/,.idea/,.vscode/,workdir/,.gitignore
 
 # -------------------------------------------------------------------------------------------------
 # Container versions
@@ -276,7 +276,7 @@ _lint-json: _pull-jl
 	@if docker run $$(tty -s && echo "-it" || echo) --rm --network none \
 	  -v "$(CURRENT_DIR):/data:ro" \
 	  cytopia/jsonlint:$(JL_VERSION) \
-		-t '  ' -i '*.terraform/*' '*.json'; then \
+		-t '  ' -i '*.terraform/*,./.vscode/*' '*.json'; then \
 		echo "OK"; \
 	else \
 		echo "Failed"; \

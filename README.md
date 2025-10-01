@@ -42,7 +42,8 @@ module "terraform-aws-xlt-loadtest" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.14 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.14.1 |
+| <a name="provider_local"></a> [local](#provider\_local) | n/a |
 
 <!-- TFDOCS_PROVIDER_END -->
 
@@ -105,7 +106,7 @@ Description: The existing keyname of the keypair used for connecting with ssh to
 
 Type: `string`
 
-Default: `""`
+Default: `null`
 
 ### <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type)
 
@@ -163,6 +164,38 @@ Type: `map(string)`
 
 Default: `{}`
 
+### <a name="input_master_controller_create"></a> [master\_controller\_create](#input\_master\_controller\_create)
+
+Description: Whether to create an XLT Master Controller instance
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_master_controller_ami"></a> [master\_controller\_ami](#input\_master\_controller\_ami)
+
+Description: The AMI used for the master controller
+
+Type: `string`
+
+Default: `"ami-0b7c9879f1e078eb1"`
+
+### <a name="input_master_controller_instance_type"></a> [master\_controller\_instance\_type](#input\_master\_controller\_instance\_type)
+
+Description: The instance\_type used for the master controller
+
+Type: `string`
+
+Default: `"c8g.2xlarge"`
+
+### <a name="input_master_controller_ssh_port"></a> [master\_controller\_ssh\_port](#input\_master\_controller\_ssh\_port)
+
+Description: The port on the nlb to forward to the master controller's ssh
+
+Type: `number`
+
+Default: `6022`
+
 <!-- TFDOCS_INPUTS_END -->
 
 <!-- TFDOCS_OUTPUTS_START -->
@@ -172,6 +205,7 @@ Default: `{}`
 |------|-------------|
 | <a name="output_lb_host"></a> [lb\_host](#output\_lb\_host) | n/a |
 | <a name="output_master_controller_properties"></a> [master\_controller\_properties](#output\_master\_controller\_properties) | n/a |
+| <a name="output_master_controller_ssh_command"></a> [master\_controller\_ssh\_command](#output\_master\_controller\_ssh\_command) | n/a |
 | <a name="output_reporting_host"></a> [reporting\_host](#output\_reporting\_host) | n/a |
 | <a name="output_vpc_nat_eips"></a> [vpc\_nat\_eips](#output\_vpc\_nat\_eips) | n/a |
 

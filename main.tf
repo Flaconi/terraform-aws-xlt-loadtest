@@ -21,7 +21,7 @@ module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.3.0"
 
-  name        = "${var.name}-sg"
+  name        = "xlt-${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
   vpc_id      = module.vpc.vpc_id
 
@@ -78,7 +78,7 @@ module "grafana" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "6.1.1"
 
-  name   = "grafana-${var.name}"
+  name   = "xlt-${var.name}-grafana"
   create = var.grafana_enabled ? true : false
 
   ami                         = var.grafana_ami
@@ -98,7 +98,7 @@ module "grafana" {
 # Network Load Balancer
 resource "aws_lb" "this" {
   count              = local.nlb_count
-  name               = "${var.name}-nlb-${count.index}"
+  name               = "xlt-${var.name}-nlb-${count.index}"
   internal           = false
   load_balancer_type = "network"
   subnets            = module.vpc.public_subnets
@@ -112,7 +112,7 @@ resource "aws_lb" "this" {
 # Target Group to point to XLT Instances ( Agent port )
 resource "aws_lb_target_group" "this" {
   count                = var.instance_count
-  name_prefix          = "xlt"
+  name_prefix          = "xlt-${var.name}"
   port                 = "8500"
   protocol             = "TCP"
   vpc_id               = module.vpc.vpc_id
