@@ -1,177 +1,209 @@
-# VPC
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "6.2.0"
+locals {
+  xlt_version    = "9.1.2"
+  pad_length     = length(tostring(var.agent_count))
+  private_subnet = cidrsubnet(var.local_network, 8, 1)
+  public_subnet  = cidrsubnet(var.local_network, 8, 101)
 
-  name = "xlt-${var.name}"
-  cidr = var.local_network
+  tags = merge(
+    var.tags,
+    {
+      "Name"        = "xlt-${var.name}"
+      "Environment" = "load-test"
+    },
+  )
 
-  azs             = ["eu-central-1a"]
-  private_subnets = [local.private_subnet]
-  public_subnets  = [local.public_subnet]
+  user_data = <<-EOT
+    #!/bin/bash
+    sudo dnf update -y
+    sudo dnf install java-21-amazon-corretto-devel -y
+    sudo dnf install git -y
+    sudo dnf install maven -y
+    cd /home/ec2-user
+    wget https://lab.xceptance.de/releases/xlt/${local.xlt_version}/xlt-${local.xlt_version}.zip
+    unzip xlt-${local.xlt_version}.zip
+    git clone -b ${var.branch_name} https://${var.github_token}@github.com/Flaconi/xlt-load-test-lite.git xlt-tests
+    cd xlt-tests
+    export JAVA_HOME="/usr/lib/jvm/java-21-amazon-corretto.aarch64"
+    mvn install
+    cd ..
+    sudo chown -R ec2-user:ec2-user .
+    touch -- '@@@ BUILD DONE @@@'
+  EOT
 
-  enable_nat_gateway = true
-  enable_vpn_gateway = false
-
-  tags = local.tags
+  agent_controllers = [for index, agent in module.agents : <<-EOT
+      com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.url = https://${agent.private_ip}:8500
+      com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.weight = 1
+      com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.agents = 2
+    EOT
+  ]
 }
 
-# Security Group for the EC2 Agents
-module "ec2_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "5.3.0"
+module "vpc" {
+  source             = "terraform-aws-modules/vpc/aws"
+  version            = "6.4.0"
+  name               = "xlt-${var.name}"
+  cidr               = var.local_network
+  azs                = ["eu-central-1a"]
+  private_subnets    = [local.private_subnet]
+  public_subnets     = [local.public_subnet]
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
+  tags               = local.tags
+}
 
-  name        = "xlt-${var.name}-sg"
-  description = "Security group for - xceptance - ec2-to-nlb"
+module "mc_sg" {
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "5.3.0"
+  name        = "xlt-${var.name}-mc-sg"
+  description = "Security group for xlt load test master controller"
   vpc_id      = module.vpc.vpc_id
+  tags        = local.tags
 
-  ingress_with_cidr_blocks = flatten([
-    for cidr in concat([var.local_network], var.allowed_networks) : {
-      rule        = "all-all"
+  ingress_with_cidr_blocks = [
+    for cidr in var.ssh_allowed_cidr_blocks : {
+      description = "allow ssh"
+      protocol    = "tcp"
+      from_port   = 22
+      to_port     = 22
       cidr_blocks = cidr
-  }])
-
-  number_of_computed_ingress_with_self = 1
-
-  computed_ingress_with_self = [
-    {
-      rule = "all-all"
     }
   ]
-  number_of_computed_egress_with_self = 1
-  computed_egress_with_self = [
+
+  egress_with_cidr_blocks = [
     {
-      rule = "all-all"
-    },
-  ]
-  number_of_computed_egress_with_cidr_blocks = 1
-  computed_egress_with_cidr_blocks = [
-    {
-      rule        = "all-all"
+      description = "allow outbound"
+      protocol    = "-1"
+      from_port   = -1
+      to_port     = -1
       cidr_blocks = "0.0.0.0/0"
     },
   ]
 }
 
-# XLT
-module "xceptance_cluster" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "6.1.1"
+module "agent_sg" {
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "5.3.0"
+  name        = "xlt-${var.name}-agent-sg"
+  description = "Security group for xlt load test agent"
+  vpc_id      = module.vpc.vpc_id
+  tags        = local.tags
 
-  count = var.instance_count
-  name  = "xlt-${var.name}-${count.index}"
+  ingress_with_source_security_group_id = [
+    {
+      description              = "allow xlt connection from mc"
+      protocol                 = "tcp"
+      from_port                = 8500
+      to_port                  = 8500
+      source_security_group_id = module.mc_sg.security_group_id
+    },
+    {
+      description              = "allow ssh connection from mc"
+      protocol                 = "tcp"
+      from_port                = 22
+      to_port                  = 22
+      source_security_group_id = module.mc_sg.security_group_id
+    },
+  ]
 
-  ami                    = var.ami
-  instance_type          = var.instance_type
-  key_name               = var.keyname
-  monitoring             = true
-  vpc_security_group_ids = [module.ec2_sg.security_group_id]
-  subnet_id              = module.vpc.private_subnets[0]
-
-  user_data = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
-
-  tags = local.tags
+  egress_with_cidr_blocks = [
+    {
+      description = "allow outbound"
+      protocol    = "-1"
+      from_port   = -1
+      to_port     = -1
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
 }
 
-# Grafana
-module "grafana" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "6.1.1"
+module "key_pair" {
+  source               = "terraform-aws-modules/key-pair/aws"
+  version              = "2.1.0"
+  key_name             = "xlt-${var.name}-key-pair"
+  create_private_key   = true
+  private_key_rsa_bits = 2048
+  tags                 = local.tags
+}
 
-  name   = "xlt-${var.name}-grafana"
-  create = var.grafana_enabled ? true : false
-
-  ami                         = var.grafana_ami
-  instance_type               = "m4.xlarge"
-  key_name                    = var.keyname
+module "master_controller" {
+  source                      = "terraform-aws-modules/ec2-instance/aws"
+  version                     = "6.1.1"
+  name                        = "xlt-${var.name}-master-controller"
+  ami                         = var.master_controller_ami
+  instance_type               = var.master_controller_instance_type
+  key_name                    = module.key_pair.key_pair_name
   monitoring                  = true
-  vpc_security_group_ids      = [module.ec2_sg.security_group_id]
-  subnet_id                   = module.vpc.private_subnets[0]
-  private_ip                  = local.graphite_host
-  associate_public_ip_address = false
-
-  user_data = "{\"auth\": [ {\"name\": \"admin\", \"pass\": \"${var.password}\"}]}"
-
-  tags = local.tags
+  vpc_security_group_ids      = [module.mc_sg.security_group_id]
+  subnet_id                   = module.vpc.public_subnets[0]
+  create_security_group       = false
+  create_eip                  = true
+  user_data_base64            = base64encode(local.user_data)
+  user_data_replace_on_change = true
+  tags                        = local.tags
 }
 
-# Network Load Balancer
-resource "aws_lb" "this" {
-  count              = local.nlb_count
-  name               = "xlt-${var.name}-nlb-${count.index}"
-  internal           = false
-  load_balancer_type = "network"
-  subnets            = module.vpc.public_subnets
+resource "null_resource" "wait_master_controller" {
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    host        = module.master_controller.public_ip
+    private_key = file(local_file.key_pair_pem.filename)
+  }
 
-  enable_deletion_protection       = false
-  enable_cross_zone_load_balancing = true
-
-  tags = local.tags
-}
-
-# Target Group to point to XLT Instances ( Agent port )
-resource "aws_lb_target_group" "this" {
-  count                = var.instance_count
-  name_prefix          = "xlt-${var.name}"
-  port                 = "8500"
-  protocol             = "TCP"
-  vpc_id               = module.vpc.vpc_id
-  target_type          = "ip"
-  deregistration_delay = "10"
-
-  tags = local.tags
-}
-
-# LB Listeners for Agents
-resource "aws_lb_listener" "this" {
-  count             = var.instance_count
-  load_balancer_arn = aws_lb.this[ceil((count.index + 1) / local.instance_count_per_lb) - 1].arn
-  port              = count.index + var.start_port_services
-  protocol          = "TCP"
-
-  default_action {
-    target_group_arn = aws_lb_target_group.this[count.index].arn
-    type             = "forward"
+  provisioner "remote-exec" {
+    inline = [
+      "cloud-init status --wait"
+    ]
   }
 }
 
-# Target Group Attachment to instance:agentport
-resource "aws_lb_target_group_attachment" "agents" {
-  count            = var.instance_count
-  target_group_arn = aws_lb_target_group.this[count.index].arn
-  target_id        = module.xceptance_cluster[count.index].private_ip
-  port             = 8500
-}
+resource "null_resource" "copy_master_controller_properties" {
+  depends_on = [null_resource.wait_master_controller]
+  triggers = {
+    master_controller_properties_file = local_file.master_controller_properties.content_md5
+  }
 
-### GRAFANA
-resource "aws_lb_target_group" "grafana" {
-  count                = var.grafana_enabled ? 1 : 0
-  name_prefix          = "graf"
-  port                 = "443"
-  protocol             = "TCP"
-  vpc_id               = module.vpc.vpc_id
-  target_type          = "ip"
-  deregistration_delay = "10"
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    host        = module.master_controller.public_ip
+    private_key = file(local_file.key_pair_pem.filename)
+  }
 
-  tags = local.tags
-}
-
-# LB Listeners for Grafana
-resource "aws_lb_listener" "grafana" {
-  count             = var.grafana_enabled ? 1 : 0
-  load_balancer_arn = aws_lb.this[local.nlb_count - 1].arn
-  port              = 443
-  protocol          = "TCP"
-
-  default_action {
-    target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
-    type             = "forward"
+  provisioner "file" {
+    source      = local_file.master_controller_properties.filename
+    destination = "/home/ec2-user/xlt-${local.xlt_version}/config/mastercontroller.properties"
   }
 }
-# Target Group Attachment to instance:grafanaport
-resource "aws_lb_target_group_attachment" "grafana" {
-  count            = var.grafana_enabled ? 1 : 0
-  target_group_arn = concat(aws_lb_target_group.grafana.*.arn, [""])[0]
-  target_id        = module.grafana.private_ip
-  port             = 443
+
+module "agents" {
+  source                 = "terraform-aws-modules/ec2-instance/aws"
+  version                = "6.1.1"
+  count                  = var.agent_count
+  name                   = format("xlt-${var.name}-%0${local.pad_length}s", count.index)
+  ami                    = var.agent_ami
+  instance_type          = var.agent_instance_type
+  key_name               = module.key_pair.key_pair_name
+  monitoring             = true
+  vpc_security_group_ids = [module.agent_sg.security_group_id]
+  subnet_id              = module.vpc.private_subnets[0]
+  create_security_group  = false
+  user_data              = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
+  tags                   = local.tags
+}
+
+resource "local_file" "key_pair_pem" {
+  filename        = "output/xlt-${var.name}.pem"
+  content         = module.key_pair.private_key_pem
+  file_permission = "0400"
+}
+
+resource "local_file" "master_controller_properties" {
+  filename        = "output/mastercontroller.properties"
+  file_permission = "0666"
+
+  content = templatefile("${path.module}/masterconfig.tftpl", {
+    agent_controller_block = join("", local.agent_controllers)
+    password               = var.password
+  })
 }

@@ -42,8 +42,8 @@ module "terraform-aws-xlt-loadtest" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.14.1 |
 | <a name="provider_local"></a> [local](#provider\_local) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | ~> 3.2 |
 
 <!-- TFDOCS_PROVIDER_END -->
 
@@ -54,6 +54,7 @@ module "terraform-aws-xlt-loadtest" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.8 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.14 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2 |
 
 <!-- TFDOCS_REQUIREMENTS_END -->
 
@@ -68,12 +69,6 @@ Description: The name used for further interpolation
 
 Type: `string`
 
-### <a name="input_allowed_networks"></a> [allowed\_networks](#input\_allowed\_networks)
-
-Description: The allowed networks IP/32
-
-Type: `list(string)`
-
 ### <a name="input_password"></a> [password](#input\_password)
 
 Description: The password to use
@@ -84,14 +79,6 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-### <a name="input_start_port_services"></a> [start\_port\_services](#input\_start\_port\_services)
-
-Description: The first agent of many will be exposed at port 5000 of the NLB, the second on 5001 etc.etc.
-
-Type: `number`
-
-Default: `5000`
-
 ### <a name="input_local_network"></a> [local\_network](#input\_local\_network)
 
 Description: The vpc network
@@ -100,85 +87,13 @@ Type: `string`
 
 Default: `"10.0.0.0/16"`
 
-### <a name="input_keyname"></a> [keyname](#input\_keyname)
-
-Description: The existing keyname of the keypair used for connecting with ssh to the agents
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type)
-
-Description: The default instance\_type
-
-Type: `string`
-
-Default: `"c5.2xlarge"`
-
-### <a name="input_ami"></a> [ami](#input\_ami)
-
-Description: The AMI used for the agents
-
-Type: `string`
-
-Default: `"ami-01cd2bce70ccf6df4"`
-
-### <a name="input_instance_count"></a> [instance\_count](#input\_instance\_count)
-
-Description: The amount of instances to start
-
-Type: `string`
-
-Default: `2`
-
-### <a name="input_instance_count_per_lb"></a> [instance\_count\_per\_lb](#input\_instance\_count\_per\_lb)
-
-Description: The amount of instances per lb
-
-Type: `string`
-
-Default: `50`
-
-### <a name="input_grafana_enabled"></a> [grafana\_enabled](#input\_grafana\_enabled)
-
-Description: Do we create a custom Grafana instance
-
-Type: `bool`
-
-Default: `false`
-
-### <a name="input_grafana_ami"></a> [grafana\_ami](#input\_grafana\_ami)
-
-Description: The grafana ami (required if grafana\_enabled is set to true)
-
-Type: `string`
-
-Default: `"ami-0fc36223101444802"`
-
-### <a name="input_tags"></a> [tags](#input\_tags)
-
-Description: The tags to add
-
-Type: `map(string)`
-
-Default: `{}`
-
-### <a name="input_master_controller_create"></a> [master\_controller\_create](#input\_master\_controller\_create)
-
-Description: Whether to create an XLT Master Controller instance
-
-Type: `bool`
-
-Default: `false`
-
 ### <a name="input_master_controller_ami"></a> [master\_controller\_ami](#input\_master\_controller\_ami)
 
 Description: The AMI used for the master controller
 
 Type: `string`
 
-Default: `"ami-0b7c9879f1e078eb1"`
+Default: `"ami-00544f9ad8d9a0458"`
 
 ### <a name="input_master_controller_instance_type"></a> [master\_controller\_instance\_type](#input\_master\_controller\_instance\_type)
 
@@ -188,13 +103,67 @@ Type: `string`
 
 Default: `"c8g.2xlarge"`
 
-### <a name="input_master_controller_ssh_port"></a> [master\_controller\_ssh\_port](#input\_master\_controller\_ssh\_port)
+### <a name="input_agent_ami"></a> [agent\_ami](#input\_agent\_ami)
 
-Description: The port on the nlb to forward to the master controller's ssh
+Description: The AMI used for the agents
 
-Type: `number`
+Type: `string`
 
-Default: `6022`
+Default: `"ami-0db8929bf1d58c81a"`
+
+### <a name="input_agent_instance_type"></a> [agent\_instance\_type](#input\_agent\_instance\_type)
+
+Description: The instance\_type used for the agents
+
+Type: `string`
+
+Default: `"c8g.2xlarge"`
+
+### <a name="input_agent_count"></a> [agent\_count](#input\_agent\_count)
+
+Description: The amount of instances to start
+
+Type: `string`
+
+Default: `2`
+
+### <a name="input_ssh_allowed_cidr_blocks"></a> [ssh\_allowed\_cidr\_blocks](#input\_ssh\_allowed\_cidr\_blocks)
+
+Description: The cidr blocks alloed ssh
+
+Type: `list(string)`
+
+Default:
+
+```json
+[
+  "0.0.0.0/0"
+]
+```
+
+### <a name="input_github_token"></a> [github\_token](#input\_github\_token)
+
+Description: The Github fine-grained token to checkout the tests
+
+Type: `string`
+
+Default: `""`
+
+### <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name)
+
+Description: The branch name to checkout the tests
+
+Type: `string`
+
+Default: `"master"`
+
+### <a name="input_tags"></a> [tags](#input\_tags)
+
+Description: The tags to add
+
+Type: `map(string)`
+
+Default: `{}`
 
 <!-- TFDOCS_INPUTS_END -->
 
@@ -203,11 +172,7 @@ Default: `6022`
 
 | Name | Description |
 |------|-------------|
-| <a name="output_lb_host"></a> [lb\_host](#output\_lb\_host) | n/a |
-| <a name="output_master_controller_properties"></a> [master\_controller\_properties](#output\_master\_controller\_properties) | n/a |
-| <a name="output_master_controller_ssh_command"></a> [master\_controller\_ssh\_command](#output\_master\_controller\_ssh\_command) | n/a |
-| <a name="output_reporting_host"></a> [reporting\_host](#output\_reporting\_host) | n/a |
-| <a name="output_vpc_nat_eips"></a> [vpc\_nat\_eips](#output\_vpc\_nat\_eips) | n/a |
+| <a name="output_ssh_commands"></a> [ssh\_commands](#output\_ssh\_commands) | n/a |
 
 <!-- TFDOCS_OUTPUTS_END -->
 
