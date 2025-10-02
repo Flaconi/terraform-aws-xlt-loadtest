@@ -14,3 +14,7 @@ module "cluster" {
 output "ssh_commands" {
   value = module.cluster.ssh_commands
 }
+
+output "report_url" {
+  value = module.cluster.report_url
+}

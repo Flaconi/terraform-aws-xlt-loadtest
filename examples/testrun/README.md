@@ -31,6 +31,7 @@ No inputs.
 | Name | Description |
 |------|-------------|
 | <a name="output_ssh_commands"></a> [ssh\_commands](#output\_ssh\_commands) | n/a |
+| <a name="output_report_url"></a> [report\_url](#output\_report\_url) | n/a |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
