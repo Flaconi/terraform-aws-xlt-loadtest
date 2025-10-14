@@ -1,11 +1,5 @@
 # terraform-aws-xlt-loadtest
 
-
-[![Build Status](https://travis-ci.com/Flaconi/terraform-aws-xlt-loadtest.svg?branch=master)](https://travis-ci.com/Flaconi/terraform-aws-xlt-loadtest)
-[![Tag](https://img.shields.io/github/tag/Flaconi/terraform-aws-xlt-loadtest.svg)](https://github.com/Flaconi/terraform-aws-xlt-loadtest/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-
 This Terraform module automates the setup of a complete Xceptance load test cluster on AWS. It handles everything from provisioning the master controller and agent instances to configuring them, checking out your test sources from GitHub, and building them on the master controller.
 
 ## How to use
@@ -80,12 +74,18 @@ The module will also create a new **`output`** directory inside your `workdir`. 
 -   A copy of the generated **`mastercontroller.properties`** file.
 
 ### Running Your Load Test ⚡️
-After your cluster has been successfully created with Terraform, follow these steps to connect to the master controller and execute a load test.
+After your cluster has been successfully created with Terraform, follow these steps to connect to the master controller and execute a load test. 
 #### 1. Connect to the Master Controller 🖥️
 Use the `ssh` command provided in the `ssh_commands` output from your Terraform `apply`. This will log you into the master controller instance.
 ```bash
 # Example command from your Terraform output
 ssh -i /path/to/your/key.pem ec2-user@ec2-xx-xx-xx-xx.compute-1.amazonaws.com
+```
+> [!NOTE]
+> Any change done in the testing branch (provided by **`branch_name`**) can be pulled to the mastercontroller by simple `git` commands under the tests folder on the mastercontroll instance.
+```bash
+cd xlt-tests
+git pull
 ```
 #### 2. Launch the XLT Master Controller
 Once you are connected via SSH, navigate to the Xceptance LoadTest (XLT) directory and start the interactive master controller shell.
