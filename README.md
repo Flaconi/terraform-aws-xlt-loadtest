@@ -69,7 +69,7 @@ After `terraform apply` completes, you'll get two types of output: values printe
     - An **AWS CLI command** to sync test reports from the master controller to an S3 bucket.
 - **`report_url`**: This is the direct **URL** where you can access and view the test result reports.
 ##### Local Output Files
-The module will also create a new **`output`** directory inside your `workdir`. This folder contains crucial files for accessing the cluster:
+The module will also create a new **`output`** directory inside your `workdir`. This directory contains crucial files for accessing the cluster:
 -   The **private key** file needed for the SSH connection.
 -   A copy of the generated **`mastercontroller.properties`** file.
 
@@ -82,9 +82,12 @@ Use the `ssh` command provided in the `ssh_commands` output from your Terraform 
 ssh -i /path/to/your/key.pem ec2-user@ec2-xx-xx-xx-xx.compute-1.amazonaws.com
 ```
 > [!NOTE]
-> Any change done in the testing branch (provided by **`branch_name`**) can be pulled to the mastercontroller by simple `git` commands under the tests folder on the mastercontroll instance.
+> Any change done in the testing branch (provided by **`branch_name`**) can be pulled to the mastercontroller by simple `git` commands under the tests directory on the mastercontroll instance.
 ```bash
+# Navigate to the XLT test directory
 cd xlt-tests
+
+# Pull the locally comitted and pushed changes
 git pull
 ```
 #### 2. Launch the XLT Master Controller
