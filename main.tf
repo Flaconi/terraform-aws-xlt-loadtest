@@ -37,6 +37,7 @@ locals {
     unzip xlt-${local.xlt_version}.zip
 
     git clone -b ${var.branch_name} https://${var.github_token}@github.com/Flaconi/xlt-load-test-lite.git xlt-tests
+    git config pull.rebase true
     cd xlt-tests
     export JAVA_HOME="/usr/lib/jvm/java-21-amazon-corretto.aarch64"
     mvn install
@@ -73,7 +74,7 @@ locals {
     type        = "ssh"
     user        = "ec2-user"
     host        = module.master_controller.public_ip
-    private_key = file(local_file.key_pair_pem.filename)
+    private_key = local_file.key_pair_pem.filename
   }
 }
 
@@ -229,7 +230,7 @@ resource "null_resource" "wait_master_controller" {
     type        = local.master_controller_ssh.type
     user        = local.master_controller_ssh.user
     host        = local.master_controller_ssh.host
-    private_key = local.master_controller_ssh.private_key
+    private_key = file(local.master_controller_ssh.private_key)
   }
 
   provisioner "remote-exec" {
@@ -250,7 +251,7 @@ resource "null_resource" "copy_master_controller_properties" {
     type        = local.master_controller_ssh.type
     user        = local.master_controller_ssh.user
     host        = local.master_controller_ssh.host
-    private_key = local.master_controller_ssh.private_key
+    private_key = file(local.master_controller_ssh.private_key)
   }
 
   provisioner "file" {

@@ -74,7 +74,7 @@ The module will also create a new **`output`** directory inside your `workdir`. 
 -   A copy of the generated **`mastercontroller.properties`** file.
 
 ### Running Your Load Test ⚡️
-After your cluster has been successfully created with Terraform, follow these steps to connect to the master controller and execute a load test. 
+After your cluster has been successfully created with Terraform, follow these steps to connect to the master controller and execute a load test.
 #### 1. Connect to the Master Controller 🖥️
 Use the `ssh` command provided in the `ssh_commands` output from your Terraform `apply`. This will log you into the master controller instance.
 ```bash
@@ -89,12 +89,15 @@ cd xlt-tests
 
 # Pull the locally comitted and pushed changes
 git pull
+
+# Navigate to the home
+cd ..
 ```
 #### 2. Launch the XLT Master Controller
 Once you are connected via SSH, navigate to the Xceptance LoadTest (XLT) directory and start the interactive master controller shell.
 ```bash
 # Navigate to the XLT installation directory
-cd xlt-9.1.2/
+cd xlt-9.1.2
 
 # Start the master controller
 ./bin/mastercontroller.sh
