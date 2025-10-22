@@ -1,3 +1,15 @@
+variable "create_cluster" {
+  description = "Controlls if the load test cluster should be created"
+  default     = true
+  type        = bool
+}
+
+variable "create_report_bucket" {
+  description = "Controlls if the load test report storage bucket should be created"
+  default     = true
+  type        = bool
+}
+
 variable "local_network" {
   description = "The vpc network"
   default     = "10.0.0.0/16"

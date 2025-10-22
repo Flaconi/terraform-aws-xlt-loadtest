@@ -1,0 +1,39 @@
+#!/bin/bash
+sudo dnf update -y
+sudo dnf install java-21-amazon-corretto-devel -y
+sudo dnf install git -y
+sudo dnf install maven -y
+
+cd ${home_path}
+
+wget https://lab.xceptance.de/releases/xlt/${xlt_version}/xlt-${xlt_version}.zip
+unzip xlt-${xlt_version}.zip
+
+git clone -b ${branch_name} https://${github_token}@github.com/Flaconi/xlt-load-test-lite.git xlt-tests
+git config pull.rebase true
+cd xlt-tests
+export JAVA_HOME="/usr/lib/jvm/java-21-amazon-corretto.aarch64"
+mvn install
+
+cd ..
+
+%{if s3_bucket_id != "" && s3_bucket_website_endpoint != "" ~}
+mkdir scripts
+cat > scripts/generate_reports_index_html.sh <<'EOF'
+#!/bin/bash
+cd ${xlt_path}/reports
+list=$(find . -mindepth 1 -maxdepth 1 -type d ! -name ".*" -printf "<li><a href=\"http://${s3_bucket_website_endpoint}/%f\">%f</a></li>\n")
+echo -e "<html>\n<body>\n<ul>\n$${list}</ul>\n</body>\n</html>" > index.html
+EOF
+chmod +x scripts/generate_reports_index_html.sh
+sudo dnf install cronie -y
+sudo systemctl enable crond.service
+sudo systemctl start crond.service
+echo "\
+* * * * * flock -n ${home_path}/scripts/generate_reports_index_html.lock ${home_path}/scripts/generate_reports_index_html.sh
+* * * * * flock -n ${home_path}/scripts/aws_s3_sync.lock aws s3 sync ${xlt_path}/reports s3://${s3_bucket_id} --quiet" | sudo crontab -u ec2-user -
+%{endif ~}
+
+sudo chown -R ec2-user:ec2-user .
+
+touch -- '@@@ BUILD DONE @@@'

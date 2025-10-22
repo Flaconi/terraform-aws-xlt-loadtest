@@ -48,6 +48,8 @@ Next, open the `main.tf` file in your `workdir` and adjust the following paramet
 - **`password`**: Define a secure password for the Agent Controller.
 - **`github_token`**: Paste the fine-grained GitHub access token you created previously.
 - **`branch_name`**: Specify the name of the Git branch containing the test sources you want to check out.
+- **`create_cluster`**: Controlls if the load test cluster should be created.
+- **`create_report_bucket`**: Controlls if the load test report storage bucket should be created.
 #### 3. Launch the Infrastructure
 With your configuration complete, use the standard Terraform workflow to initialize and deploy the cluster.
 ```bash
@@ -64,9 +66,10 @@ terraform apply
 After `terraform apply` completes, you'll get two types of output: values printed to your terminal and essential files saved to a local directory. They contain crucial information for accessing and managing your cluster.
 ##### Terminal Outputs
 - **`ssh_commands`**: This structured output provides you with:
-    - The **SSH command** to connect directly to the master controller.
-    - A **`scp` command** to copy the master controller's properties file.
-    - An **AWS CLI command** to sync test reports from the master controller to an S3 bucket.
+    - **ssh to the master controller (execute local)** to connect directly to the master controller.
+    - **copy mastercontroller.properties (execute local)** to copy the master controller's properties file.
+    - **sync reports to the report host (execute remote)** to sync test reports from the master controller to an S3 bucket.
+    - **sync reports to the local (execute local)** to sync test reports from the master controller to local.
 - **`report_url`**: This is the direct **URL** where you can access and view the test result reports.
 ##### Local Output Files
 The module will also create a new **`output`** directory inside your `workdir`. This directory contains crucial files for accessing the cluster:
@@ -119,15 +122,19 @@ The test report is automatically uploaded to the S3 bucket configured by the Ter
 
 ### Destroying the Load Test Cluster 💣
 When you're finished testing, you can remove all the created AWS resources to prevent ongoing costs.
-> **⚠️ Important: Report Deletion**
-> Running the `destroy` command will permanently delete all provisioned resources, **including the S3 bucket and any test reports** synchronized to it. Please make sure you have saved any reports you need to keep before proceeding.
-To destroy the cluster, navigate to your `workdir` and run the standard Terraform command:
-
+> [!WARNING]
+> Running the `destroy` command will permanently delete all provisioned resources, **including the S3 bucket and any test reports** synchronized to it. Please make sure you have saved any reports you need to keep before proceeding. To destroy the cluster, navigate to your `workdir` and run the standard Terraform command:
 ```bash
 # This will prompt for confirmation before deleting all resources.
 terraform destroy
 ```
-
+> [!TIP]
+> To keep the reports and its preview host; navigate to your `workdir` then please set the parameters **`create_cluster`** flag to `false` and **`create_report_bucket`** flag to `true` in the `main.tf` file and run the standard Terraform command: 
+`
+```bash
+# This will permanently delete the all resources to run the load tests but the reports.
+terraform apply
+```
 <!-- TFDOCS_HEADER_START -->
 
 
@@ -175,6 +182,22 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_create_cluster"></a> [create\_cluster](#input\_create\_cluster)
+
+Description: Controlls if the load test cluster should be created
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_create_report_bucket"></a> [create\_report\_bucket](#input\_create\_report\_bucket)
+
+Description: Controlls if the load test report storage bucket should be created
+
+Type: `bool`
+
+Default: `true`
 
 ### <a name="input_local_network"></a> [local\_network](#input\_local\_network)
 

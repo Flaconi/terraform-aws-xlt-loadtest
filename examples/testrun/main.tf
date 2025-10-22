@@ -3,12 +3,14 @@ provider "aws" {
 }
 
 module "cluster" {
-  source       = "../../"
-  name         = "test-run"
-  agent_count  = 2
-  password     = "password"
-  github_token = "github_token"
-  branch_name  = "master"
+  source               = "../../"
+  name                 = "test-run"
+  agent_count          = 2
+  password             = "password"
+  github_token         = "github_token"
+  branch_name          = "master"
+  create_cluster       = true
+  create_report_bucket = true
 }
 
 output "ssh_commands" {

@@ -8,7 +8,11 @@ com.xceptance.xlt.mastercontroller.https.proxy.host =
 com.xceptance.xlt.mastercontroller.https.proxy.port =
 com.xceptance.xlt.mastercontroller.https.proxy.bypassForHosts =
 
-${agent_controller_block}
+%{for index, agent in agents ~}
+com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.url = https://${agent.private_ip}:8500
+com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.weight = 1
+com.xceptance.xlt.mastercontroller.agentcontrollers.ac${index}.agents = 2
+%{endfor ~}
 
 log4j.rootLogger = warn, file
 log4j.logger.com.xceptance = warn
