@@ -23,7 +23,7 @@ variable "name" {
 
 variable "master_controller_ami" {
   description = "The AMI used for the master controller"
-  default     = "ami-00544f9ad8d9a0458" # Amazon Linux 2023 AMI 2023.8.20250915.0 arm64 HVM kernel-6.1
+  default     = "ami-0f8bcea7c354b43d0" # Amazon Linux 2023 AMI 2023.9.20251014.0 arm64 HVM kernel-6.1
   type        = string
 }
 
