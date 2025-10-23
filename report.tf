@@ -37,7 +37,7 @@ module "report" {
 resource "aws_iam_policy" "mc_iam_policy_s3_sync" {
   count       = var.create_cluster && var.create_report_bucket ? 1 : 0
   name        = "xlt-${var.name}-master-controller-iam-policy-s3-sync"
-  path        = "/"
+  path        = "/xlt/"
   description = "IAM role policy for s3 sync"
 
   policy = jsonencode({
