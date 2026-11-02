@@ -19,7 +19,7 @@ module "vpc" {
 # Security Group for the EC2 Agents
 module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.3.0"
+  version = "6.0.0"
 
   name        = "${var.name}-sg"
   description = "Security group for - xceptance - ec2-to-nlb"
