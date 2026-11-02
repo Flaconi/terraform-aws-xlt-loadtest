@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: terraform-aws-xlt-loadtest
+  description: >
+    Terraform Module with all resources needed for LoadTest
+  annotations:
+    github.com/project-slug: Flaconi/terraform-aws-xlt-loadtest
+  tags:
+    - terraform
+    - aws
+    - xlt
+    - loadtest
+
+spec:
+  type: library
+  lifecycle: production
+  owner: group:platform
+  system: aws-infrastructure
+  providesApis: []
