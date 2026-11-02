@@ -1,7 +1,7 @@
 # VPC
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "6.2.0"
+  version = "6.7.3"
 
   name = "xlt-${var.name}"
   cidr = var.local_network
