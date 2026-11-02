@@ -56,7 +56,7 @@ module "ec2_sg" {
 # XLT
 module "xceptance_cluster" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "6.1.1"
+  version = "6.4.1"
 
   count = var.instance_count
   name  = "xlt-${var.name}-${count.index}"
@@ -76,7 +76,7 @@ module "xceptance_cluster" {
 # Grafana
 module "grafana" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "6.1.1"
+  version = "6.4.1"
 
   name   = "grafana-${var.name}"
   create = var.grafana_enabled ? true : false
