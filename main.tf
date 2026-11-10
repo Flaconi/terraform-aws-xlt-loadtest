@@ -25,32 +25,34 @@ module "ec2_sg" {
   description = "Security group for - xceptance - ec2-to-nlb"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_with_cidr_blocks = flatten([
-    for cidr in concat([var.local_network], var.allowed_networks) : {
-      rule        = "all-all"
-      cidr_blocks = cidr
-  }])
-
-  number_of_computed_ingress_with_self = 1
-
-  computed_ingress_with_self = [
+  ingress_rules = merge(
     {
-      rule = "all-all"
+      for cidr in distinct(concat([var.local_network], var.allowed_networks)) :
+      "all-${cidr}" => {
+        ip_protocol = "-1"
+        cidr_ipv4   = cidr
+      }
+    },
+    {
+      self = {
+        ip_protocol                  = "-1"
+        referenced_security_group_id = "self"
+      }
     }
-  ]
-  number_of_computed_egress_with_self = 1
-  computed_egress_with_self = [
-    {
-      rule = "all-all"
-    },
-  ]
-  number_of_computed_egress_with_cidr_blocks = 1
-  computed_egress_with_cidr_blocks = [
-    {
-      rule        = "all-all"
-      cidr_blocks = "0.0.0.0/0"
-    },
-  ]
+  )
+
+  egress_rules = {
+    self = {
+      ip_protocol                  = "-1"
+      referenced_security_group_id = "self"
+    }
+    all-ipv4 = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+
+  tags = { Name = "${var.name}-sg" }
 }
 
 # XLT
@@ -65,7 +67,7 @@ module "xceptance_cluster" {
   instance_type          = var.instance_type
   key_name               = var.keyname
   monitoring             = true
-  vpc_security_group_ids = [module.ec2_sg.security_group_id]
+  vpc_security_group_ids = [module.ec2_sg.id]
   subnet_id              = module.vpc.private_subnets[0]
 
   user_data = "{\"acPassword\":\"${var.password}\",\"hostData\":\"\"}"
@@ -85,7 +87,7 @@ module "grafana" {
   instance_type               = "m4.xlarge"
   key_name                    = var.keyname
   monitoring                  = true
-  vpc_security_group_ids      = [module.ec2_sg.security_group_id]
+  vpc_security_group_ids      = [module.ec2_sg.id]
   subnet_id                   = module.vpc.private_subnets[0]
   private_ip                  = local.graphite_host
   associate_public_ip_address = false
