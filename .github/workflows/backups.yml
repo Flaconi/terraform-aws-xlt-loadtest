@@ -6,6 +6,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   backup:
     uses: Flaconi/github-reusable-workflow/.github/workflows/backups.yml@v1
